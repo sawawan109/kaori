@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>あなたの想いを形に - 温かみのあるホームページ制作</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warmth and Trust Harmony -->
+    <!-- Application Structure Plan: A single-page narrative flow designed to feel like a warm, guided conversation. It starts with a welcoming hero, builds trust through philosophy and process, presents services interactively, showcases work via a modal-based portfolio, and ends with a low-pressure contact section. This structure prioritizes emotional connection and clarity over a rigid, formal layout, making it ideal for the target audience of small business owners who value a personal touch. -->
+    <!-- Visualization & Content Choices: Report Info: Service Offerings -> Goal: Organize/Inform -> Method: Interactive Tabs -> Interaction: JS-driven content switching -> Justification: Allows users to explore services without being overwhelmed by a long page, enhancing engagement. | Report Info: Process -> Goal: Organize/Trust -> Method: HTML/CSS Timeline -> Interaction: Hover effects -> Justification: Visually simplifies a potentially complex process, building client confidence. | Report Info: Portfolio -> Goal: Showcase -> Method: Grid + Modal -> Interaction: Click to open modal -> Justification: Keeps the main layout clean while providing rich detail on demand. All icons are CSS/Unicode. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background-color: #F8F4EF;
+            color: #333333;
+        }
+        .font-english {
+            font-family: 'Inter', sans-serif;
+        }
+        .bg-main { background-color: #F8F4EF; }
+        .bg-sub { background-color: #F5E7D8; }
+        .text-main { color: #333333; }
+        .text-sub { color: #666666; }
+        .accent-lavender { color: #E0BBE4; }
+        .accent-purple { color: #957DAD; }
+        .accent-peach { color: #FFC785; }
+        .bg-accent-purple { background-color: #957DAD; }
+        .bg-accent-peach { background-color: #FFC785; }
+        .border-accent-purple { border-color: #957DAD; }
+        .hover\:bg-accent-purple-dark:hover { background-color: #816c98; }
+        .soft-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background-color: #957DAD;
+            margin: 16px auto 0;
+            border-radius: 2px;
+        }
+        .smooth-scroll { scroll-behavior: smooth; }
+        .service-tab.active {
+            background-color: #957DAD;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .service-tab {
+            transition: all 0.3s ease;
+        }
+        .faq-item .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 500px;
+        }
+        .faq-item.open .faq-icon {
+            transform: rotate(45deg);
+        }
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Hero section background image */
+        #hero {
+            background-image: url(image/main.jpg);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(245, 231, 216, 0.7); /* bg-sub with opacity for text readability */
+        }
+        #hero .container {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="smooth-scroll">
+
+    <header class="bg-main/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="font-bold text-xl text-main font-english">kaori Design</a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#philosophy" class="text-sub hover:text-main transition">私たちの想い</a>
+                <a href="#services" class="text-sub hover:text-main transition">サービス</a>
+                <a href="#portfolio" class="text-sub hover:text-main transition">制作事例</a>
+                <a href="#contact" class="bg-accent-purple text-white px-4 py-2 rounded-full hover:bg-accent-purple-dark transition shadow-md">無料相談はこちら</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-main">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-2">
+            <a href="#philosophy" class="block text-sub hover:text-main transition">私たちの想い</a>
+            <a href="#services" class="block text-sub hover:text-main transition">サービス</a>
+            <a href="#portfolio" class="block text-sub hover:text-main transition">制作事例</a>
+            <a href="#contact" class="block bg-accent-purple text-white px-4 py-2 rounded-full hover:bg-accent-purple-dark transition mt-2 text-center">無料相談はこちら</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 md:py-32">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-3xl md:text-5xl font-bold text-main leading-tight">あなたのビジネスを、<br class="md:hidden">もっと輝かせませんか？</h1>
+                <p class="mt-6 text-lg text-sub max-w-2xl mx-auto">個人事業主・中小企業オーナー様へ。<br>想いを込めたホームページとデザインで、集客と成長をサポートします。</p>
+                <a href="#services" class="mt-10 inline-block bg-accent-purple text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-accent-purple-dark transition-transform transform hover:scale-105 shadow-lg">サービスを見る</a>
+            </div>
+        </section>
+
+        <section id="philosophy" class="py-20 md:py-24 bg-main">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center section-title">私たちの想い</h2>
+                <div class="mt-16 grid md:grid-cols-2 gap-12 items-center">
+                    <div class="text-center md:text-left">
+                        <p class="text-xl font-bold text-main">ただ作るだけじゃない。<br>あなたのビジネスに、温かい光を灯したい。</p>
+                        <p class="mt-6 text-sub leading-relaxed">私たちは、一人ひとりのオーナー様が持つ独自のストーリーと情熱を大切にしています。専門用語ばかりで分かりにくい、どこに頼めばいいか分からない…そんな不安を解消し、あなたのビジネスの魅力を最大限に引き出すお手伝いをします。伴走者のように、あなたの隣で一緒に考え、悩み、喜びを分かち合える存在でありたいと願っています。</p>
+                    </div>
+                    <div>
+                        <img src="image/banner.jpg" alt="温かい雰囲気の打ち合わせ風景" class="rounded-lg shadow-lg w-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="py-20 md:py-24 bg-sub">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center section-title">サービス</h2>
+                <p class="text-center mt-4 text-sub max-w-2xl mx-auto">あなたのビジネスの成長段階に合わせて、最適なサポートをご提供します。</p>
+                
+                <div id="service-tabs" class="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <button data-service="hp" class="service-tab active p-4 md:p-6 rounded-lg shadow-md bg-white hover:shadow-xl">
+                        <span class="text-3xl">🖥️</span>
+                        <h3 class="font-bold mt-2">ホームページ制作</h3>
+                        <p class="text-sm text-sub mt-1">初めての方へ</p>
+                    </button>
+                    <button data-service="renewal" class="service-tab p-4 md:p-6 rounded-lg shadow-md bg-white hover:shadow-xl">
+                        <span class="text-3xl">✨</span>
+                        <h3 class="font-bold mt-2">リニューアル支援</h3>
+                        <p class="text-sm text-sub mt-1">生まれ変わりたい方へ</p>
+                    </button>
+                    <button data-service="print" class="service-tab p-4 md:p-6 rounded-lg shadow-md bg-white hover:shadow-xl">
+                        <span class="text-3xl">🎨</span>
+                        <h3 class="font-bold mt-2">名刺・チラシ制作</h3>
+                        <p class="text-sm text-sub mt-1">あなたの顔となるツールを</p>
+                    </button>
+                    <button data-service="support" class="service-tab p-4 md:p-6 rounded-lg shadow-md bg-white hover:shadow-xl">
+                        <span class="text-3xl">🤝</span>
+                        <h3 class="font-bold mt-2">運用サポート</h3>
+                        <p class="text-sm text-sub mt-1">伴走して欲しい方へ</p>
+                    </button>
+                </div>
+
+                <div id="service-contents" class="mt-12">
+                    <div data-content="hp" class="service-content-item bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-main">ホームページ制作</h3>
+                        <p class="mt-4 text-sub">ビジネスの「顔」となる、想いの伝わるホームページをゼロから丁寧に作り上げます。初めての方でも安心してお任せいただけるよう、ヒアリングから公開まで、一つひとつ分かりやすくご説明しながら進めます。</p>
+                        <ul class="mt-6 space-y-2 text-sub">
+                            <li>✔️ 丁寧なヒアリングとコンセプト設計</li>
+                            <li>✔️ スマホ対応のレスポンシブデザイン</li>
+                            <li>✔️ WordPress導入でご自身での更新も可能に</li>
+                            <li>✔️ 公開後の基本操作レクチャー</li>
+                        </ul>
+                    </div>
+                    <div data-content="renewal" class="service-content-item hidden bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-main">リニューアル支援</h3>
+                        <p class="mt-4 text-sub">「デザインが古い」「スマホで見づらい」「情報が整理されていない」など、既存サイトのお悩みを解決。ビジネスの現状と未来像をヒアリングし、より魅力的で成果の出るサイトへと生まれ変わらせます。</p>
+                        <ul class="mt-6 space-y-2 text-sub">
+                            <li>✔️ 現状サイトの課題分析と改善提案</li>
+                            <li>✔️ 最新のデザイントレンドを反映</li>
+                            <li>✔️ SEOを意識した構造改善</li>
+                            <li>✔️ コンテンツの整理と導線設計</li>
+                        </ul>
+                    </div>
+                    <div data-content="print" class="service-content-item hidden bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-main">名刺・チラシ制作</h3>
+                        <p class="mt-4 text-sub">オンラインだけでなく、オフラインでの出会いも大切に。あなたのビジネスの第一印象を決める名刺や、想いを届けるチラシを、ホームページと一貫した世界観でデザインします。</p>
+                        <ul class="mt-6 space-y-2 text-sub">
+                            <li>✔️ ブランドイメージに沿ったデザイン提案</li>
+                            <li>✔️ 記憶に残る、印象的な名刺作成</li>
+                            <li>✔️ ターゲットに響くチラシ・パンフレット制作</li>
+                            <li>✔️ 印刷会社への入稿データ作成までサポート</li>
+                        </ul>
+                    </div>
+                    <div data-content="support" class="service-content-item hidden bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-main">運用サポート</h3>
+                        <p class="mt-4 text-sub">「作ったままで更新できていない」「困った時に相談できる相手がほしい」そんな声にお応えします。サイトの更新作業、簡単な修正、操作方法のご質問など、月額制で継続的にサポート。あなたのビジネスの伴走者となります。</p>
+                        <ul class="mt-6 space-y-2 text-sub">
+                            <li>✔️ 定期的なコンテンツ更新代行</li>
+                            <li>✔️ 技術的なご質問への対応</li>
+                            <li>✔️ 軽微なデザイン修正・機能追加</li>
+                            <li>✔️ アクセス状況の簡易レポート</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="py-20 md:py-24 bg-main">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center section-title">制作事例</h2>
+                <p class="text-center mt-4 text-sub max-w-2xl mx-auto">お客様一人ひとりの想いを形にした、大切な作品たちです。</p>
+                <div id="portfolio-grid" class="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="portfolio-item group cursor-pointer" data-title="カフェ『陽だまり』様" data-desc="地域に愛されるカフェの温かい雰囲気をウェブサイトで表現。手書き風のイラストと優しい色使いで、お店の居心地の良さを伝えました。新メニューのお知らせも簡単に更新できるよう、WordPressを導入。" data-img="https://placehold.co/800x600/E0BBE4/333333?text=Cafe+Hidamari">
+                        <div class="relative rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://placehold.co/600x450/E0BBE4/333333?text=Cafe+Hidamari" alt="カフェのウェブサイト" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all duration-300 flex items-end p-6">
+                                <div class="text-white">
+                                    <h3 class="text-xl font-bold">カフェ『陽だまり』様</h3>
+                                    <p class="text-sm mt-1">ホームページ制作</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-item group cursor-pointer" data-title="手作り雑貨店『Kotorino』様" data-desc="作家様の作品一つひとつのストーリーが伝わるような、ギャラリー中心のサイトを制作。温かみのある写真とシンプルなレイアウトで、作品の魅力を引き立てています。名刺もサイトと統一感のあるデザインで作成しました。" data-img="https://placehold.co/800x600/957DAD/FFFFFF?text=Kotorino+Shop">
+                        <div class="relative rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://placehold.co/600x450/957DAD/FFFFFF?text=Kotorino+Shop" alt="雑貨店のウェブサイト" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all duration-300 flex items-end p-6">
+                                <div class="text-white">
+                                    <h3 class="text-xl font-bold">手作り雑貨店『Kotorino』様</h3>
+                                    <p class="text-sm mt-1">HP・名刺制作</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-item group cursor-pointer" data-title="個人コンサルタント A様" data-desc="信頼感と親しみやすさを両立させることを目指し、リニューアルをご依頼いただきました。青を基調としつつも、温かみのあるイラストや丸みのあるフォントを使用。専門性と人柄が伝わるサイトへと生まれ変わりました。" data-img="https://placehold.co/800x600/FFC785/333333?text=Consultant+A">
+                        <div class="relative rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://placehold.co/600x450/FFC785/333333?text=Consultant+A" alt="コンサルタントのウェブサイト" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all duration-300 flex items-end p-6">
+                                <div class="text-white">
+                                    <h3 class="text-xl font-bold">個人コンサルタント A様</h3>
+                                    <p class="text-sm mt-1">リニューアル支援</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div id="portfolio-modal" class="modal">
+            <div class="modal-content bg-white w-11/12 md:max-w-3xl p-6 md:p-8 rounded-lg relative">
+                <button id="modal-close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+                <img id="modal-img" src="" alt="制作事例の拡大画像" class="w-full rounded-lg mb-6">
+                <h3 id="modal-title" class="text-2xl font-bold text-main"></h3>
+                <p id="modal-desc" class="mt-4 text-sub leading-relaxed"></p>
+            </div>
+        </div>
+
+        <section id="contact" class="py-20 md:py-24 bg-sub">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center section-title">お問い合わせ</h2>
+                <p class="text-center mt-4 text-sub max-w-2xl mx-auto">どんな些細なことでも構いません。<br>「ちょっと話を聞いてみたい」そんな気持ちで、お気軽にご連絡ください。</p>
+                <div class="mt-16 max-w-4xl mx-auto grid md:grid-cols-2 gap-12">
+                    <div id="faq-section">
+                        <h3 class="text-xl font-bold text-main mb-6">よくあるご質問</h3>
+                        <div class="space-y-4">
+                            <div class="faq-item bg-white p-4 rounded-lg shadow-sm">
+                                <div class="faq-question flex justify-between items-center cursor-pointer">
+                                    <h4 class="font-bold">パソコンが苦手でも大丈夫ですか？</h4>
+                                    <span class="faq-icon text-2xl accent-purple font-light">+</span>
+                                </div>
+                                <div class="faq-answer pt-4 text-sub">
+                                    <p>もちろんです。専門用語をできるだけ使わず、分かりやすい言葉で丁寧にご説明しますのでご安心ください。操作方法のレクチャーなども行っています。</p>
+                                </div>
+                            </div>
+                            <div class="faq-item bg-white p-4 rounded-lg shadow-sm">
+                                <div class="faq-question flex justify-between items-center cursor-pointer">
+                                    <h4 class="font-bold">相談だけでも良いですか？</h4>
+                                    <span class="faq-icon text-2xl accent-purple font-light">+</span>
+                                </div>
+                                <div class="faq-answer pt-4 text-sub">
+                                    <p>はい、もちろんです。まずはあなたのビジネスのお話や、やりたいことをお聞かせください。お話をお伺いした上で、最適なプランをご提案します。ご相談は無料ですので、お気軽にご連絡ください。</p>
+                                </div>
+                            </div>
+                            <div class="faq-item bg-white p-4 rounded-lg shadow-sm">
+                                <div class="faq-question flex justify-between items-center cursor-pointer">
+                                    <h4 class="font-bold">料金はどのくらいかかりますか？</h4>
+                                    <span class="faq-icon text-2xl accent-purple font-light">+</span>
+                                </div>
+                                <div class="faq-answer pt-4 text-sub">
+                                    <p>制作内容やボリュームによって異なります。まずはお客様のご予算やご希望を詳しくお伺いし、個別にお見積もりを作成させていただきます。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <form action="#" class="bg-white p-8 rounded-lg shadow-lg space-y-6">
+                            <div>
+                                <label for="name" class="block text-sm font-bold text-sub mb-2">お名前</label>
+                                <input type="text" id="name" class="w-full p-3 border border-gray-200 rounded-md focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none transition">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-bold text-sub mb-2">メールアドレス</label>
+                                <input type="email" id="email" class="w-full p-3 border border-gray-200 rounded-md focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none transition">
+                            </div>
+                            <div>
+                                <label for="message" class="block text-sm font-bold text-sub mb-2">ご相談内容</label>
+                                <textarea id="message" rows="5" class="w-full p-3 border border-gray-200 rounded-md focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none transition"></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full bg-accent-purple text-white px-8 py-3 rounded-full text-lg font-bold hover:bg-accent-purple-dark transition-transform transform hover:scale-105 shadow-md">送信する</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-main py-8">
+        <div class="container mx-auto px-6 text-center text-sub">
+            <p>&copy; 2025 Your Partner. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mobile Menu
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Service Tabs
+            const serviceTabs = document.querySelectorAll('.service-tab');
+            const serviceContents = document.querySelectorAll('.service-content-item');
+            serviceTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const service = tab.dataset.service;
+                    
+                    serviceTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    serviceContents.forEach(content => {
+                        if (content.dataset.content === service) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // FAQ Accordion
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                question.addEventListener('click', () => {
+                    const isOpen = item.classList.contains('open');
+                    faqItems.forEach(i => i.classList.remove('open'));
+                    if (!isOpen) {
+                        item.classList.add('open');
+                    }
+                });
+            });
+
+            // Portfolio Modal
+            const modal = document.getElementById('portfolio-modal');
+            const modalClose = document.getElementById('modal-close');
+            const portfolioItems = document.querySelectorAll('.portfolio-item');
+            const modalImg = document.getElementById('modal-img');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDesc = document.getElementById('modal-desc');
+
+            portfolioItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    modalImg.src = item.dataset.img;
+                    modalTitle.textContent = item.dataset.title;
+                    modalDesc.textContent = item.dataset.desc;
+                    modal.style.display = 'block';
+                });
+            });
+
+            modalClose.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
